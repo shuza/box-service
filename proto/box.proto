@@ -5,6 +5,8 @@ package box;
 service BoxService {
     rpc FindAvailableBox (Specification) returns (Response) {
     }
+    rpc Create (Box) returns (Response) {
+    }
 }
 
 message Box {
@@ -24,4 +26,5 @@ message Specification {
 message Response {
     Box box = 1;
     repeated Box boxes = 2;
+    bool created = 3;
 }

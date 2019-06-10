@@ -21,15 +21,20 @@ import (
  **/
 
 func main() {
-	repo := &db.Repository{}
+	repo := &db.MongoRepository{}
+	mongoHost := os.Getenv("MONGO_HOST")
+	if err := repo.Init(mongoHost); err != nil {
+		panic(err)
+	}
+
 	port := os.Getenv("PORT")
 
 	//	Create initial box
 	repo.Create(&pb.Box{
-		Id:"box001",
-		Name:"First Box",
-		MaxWeight:200000,
-		Capacity:5000,
+		Id:        "box001",
+		Name:      "First Box",
+		MaxWeight: 200000,
+		Capacity:  5000,
 	})
 
 	//	setup gRPC server
