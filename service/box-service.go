@@ -28,7 +28,6 @@ func (s *boxService) FindAvailableBox(ctx context.Context, req *pb.Specification
 	box, err := s.repo.FindAvailable(req)
 	if err != nil {
 		log.Warnf("repo Find available Error :  %v", err)
-
 		return nil, err
 	}
 
