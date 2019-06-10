@@ -39,5 +39,6 @@ func (s *boxService) Create(ctx context.Context, req *pb.Box) (*pb.Response, err
 		log.Warnf("repo create box Error  :   %v", err)
 		return nil, err
 	}
+
 	return &pb.Response{Created: true}, nil
 }
