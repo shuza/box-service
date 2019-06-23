@@ -23,16 +23,10 @@ func (repo *MongoRepository) Init(host string) error {
 }
 
 func (repo *MongoRepository) FindAvailable(spec *pb.Specification) (*pb.Box, error) {
-	filter := bson.D{{
-		"capacity",
-		bson.D{{
-			"$lte",
-			spec.Capacity,
-		}, {
-			"$lte",
-			spec.MaxWeight,
-		}},
-	}}
+	filter := bson.M{
+		"capacity":  bson.M{"$gte": spec.Capacity},
+		"maxweight": bson.M{"$gte": spec.MaxWeight},
+	}
 	var box *pb.Box
 	if err := repo.collection().Find(filter).One(&box); err != nil {
 		return nil, err

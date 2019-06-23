@@ -35,6 +35,7 @@ func (s *boxService) FindAvailableBox(ctx context.Context, req *pb.Specification
 }
 
 func (s *boxService) Create(ctx context.Context, req *pb.Box) (*pb.Response, error) {
+	log.Infof("Create service called")
 	if err := s.repo.Create(req); err != nil {
 		log.Warnf("repo create box Error  :   %v", err)
 		return nil, err
