@@ -5,6 +5,7 @@ import (
 	"github.com/shuza/box-service/db"
 	pb "github.com/shuza/box-service/proto"
 	"github.com/shuza/box-service/service"
+	log "github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -38,6 +39,9 @@ func main() {
 	boxService := service.NewBoxService(repo)
 	pb.RegisterBoxServiceHandler(srv.Server(), &boxService)
 
+	if err := srv.Run(); err != nil {
+		log.Warnf("srv Run  Error  :  %v\n", err)
+	}
 }
 
 func createDummyBox(repo db.IRepository) {
