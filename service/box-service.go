@@ -24,22 +24,23 @@ func NewBoxService(repo db.IRepository) boxService {
 	return service
 }
 
-func (s *boxService) FindAvailableBox(ctx context.Context, req *pb.Specification) (*pb.Response, error) {
+func (s *boxService) FindAvailableBox(ctx context.Context, req *pb.Specification, resp *pb.Response) error {
 	box, err := s.repo.FindAvailable(req)
 	if err != nil {
 		log.Warnf("repo Find available Error :  %v", err)
-		return nil, err
+		return err
 	}
-
-	return &pb.Response{Box: box}, nil
+	resp.Box = box
+	return nil
 }
 
-func (s *boxService) Create(ctx context.Context, req *pb.Box) (*pb.Response, error) {
+func (s *boxService) Create(ctx context.Context, req *pb.Box, resp *pb.Response) error {
 	log.Infof("Create service called")
 	if err := s.repo.Create(req); err != nil {
 		log.Warnf("repo create box Error  :   %v", err)
-		return nil, err
+		return err
 	}
-
-	return &pb.Response{Created: true}, nil
+	resp.Created = true
+	resp.Box = req
+	return nil
 }

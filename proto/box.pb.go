@@ -4,13 +4,15 @@
 package box
 
 import (
-	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
 	math "math"
+)
+
+import (
+	client "github.com/micro/go-micro/client"
+	server "github.com/micro/go-micro/server"
+	context "golang.org/x/net/context"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -238,116 +240,73 @@ var fileDescriptor_78b93522783601a9 = []byte{
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ context.Context
-var _ grpc.ClientConn
+var _ client.Option
+var _ server.Option
 
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
+// Client API for BoxService service
 
-// BoxServiceClient is the client API for BoxService service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BoxServiceClient interface {
-	FindAvailableBox(ctx context.Context, in *Specification, opts ...grpc.CallOption) (*Response, error)
-	Create(ctx context.Context, in *Box, opts ...grpc.CallOption) (*Response, error)
+	FindAvailableBox(ctx context.Context, in *Specification, opts ...client.CallOption) (*Response, error)
+	Create(ctx context.Context, in *Box, opts ...client.CallOption) (*Response, error)
 }
 
 type boxServiceClient struct {
-	cc *grpc.ClientConn
+	c           client.Client
+	serviceName string
 }
 
-func NewBoxServiceClient(cc *grpc.ClientConn) BoxServiceClient {
-	return &boxServiceClient{cc}
+func NewBoxServiceClient(serviceName string, c client.Client) BoxServiceClient {
+	if c == nil {
+		c = client.NewClient()
+	}
+	if len(serviceName) == 0 {
+		serviceName = "box"
+	}
+	return &boxServiceClient{
+		c:           c,
+		serviceName: serviceName,
+	}
 }
 
-func (c *boxServiceClient) FindAvailableBox(ctx context.Context, in *Specification, opts ...grpc.CallOption) (*Response, error) {
+func (c *boxServiceClient) FindAvailableBox(ctx context.Context, in *Specification, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.serviceName, "BoxService.FindAvailableBox", in)
 	out := new(Response)
-	err := c.cc.Invoke(ctx, "/box.BoxService/FindAvailableBox", in, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *boxServiceClient) Create(ctx context.Context, in *Box, opts ...grpc.CallOption) (*Response, error) {
+func (c *boxServiceClient) Create(ctx context.Context, in *Box, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.serviceName, "BoxService.Create", in)
 	out := new(Response)
-	err := c.cc.Invoke(ctx, "/box.BoxService/Create", in, out, opts...)
+	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// BoxServiceServer is the server API for BoxService service.
-type BoxServiceServer interface {
-	FindAvailableBox(context.Context, *Specification) (*Response, error)
-	Create(context.Context, *Box) (*Response, error)
+// Server API for BoxService service
+
+type BoxServiceHandler interface {
+	FindAvailableBox(context.Context, *Specification, *Response) error
+	Create(context.Context, *Box, *Response) error
 }
 
-// UnimplementedBoxServiceServer can be embedded to have forward compatible implementations.
-type UnimplementedBoxServiceServer struct {
+func RegisterBoxServiceHandler(s server.Server, hdlr BoxServiceHandler, opts ...server.HandlerOption) {
+	s.Handle(s.NewHandler(&BoxService{hdlr}, opts...))
 }
 
-func (*UnimplementedBoxServiceServer) FindAvailableBox(ctx context.Context, req *Specification) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FindAvailableBox not implemented")
-}
-func (*UnimplementedBoxServiceServer) Create(ctx context.Context, req *Box) (*Response, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+type BoxService struct {
+	BoxServiceHandler
 }
 
-func RegisterBoxServiceServer(s *grpc.Server, srv BoxServiceServer) {
-	s.RegisterService(&_BoxService_serviceDesc, srv)
+func (h *BoxService) FindAvailableBox(ctx context.Context, in *Specification, out *Response) error {
+	return h.BoxServiceHandler.FindAvailableBox(ctx, in, out)
 }
 
-func _BoxService_FindAvailableBox_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Specification)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BoxServiceServer).FindAvailableBox(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/box.BoxService/FindAvailableBox",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BoxServiceServer).FindAvailableBox(ctx, req.(*Specification))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _BoxService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Box)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(BoxServiceServer).Create(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/box.BoxService/Create",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BoxServiceServer).Create(ctx, req.(*Box))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-var _BoxService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "box.BoxService",
-	HandlerType: (*BoxServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "FindAvailableBox",
-			Handler:    _BoxService_FindAvailableBox_Handler,
-		},
-		{
-			MethodName: "Create",
-			Handler:    _BoxService_Create_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/box.proto",
+func (h *BoxService) Create(ctx context.Context, in *Box, out *Response) error {
+	return h.BoxServiceHandler.Create(ctx, in, out)
 }

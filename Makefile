@@ -1,7 +1,7 @@
 include .env
 
 protobuf:
-	protoc -I . --go_out=plugins=grpc:. ./proto/*.proto
+	protoc -I. --go_out=plugins=micro:. ./proto/*.proto
 
 .PHONY: build docker image
 docker_build:
