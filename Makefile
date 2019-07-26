@@ -23,3 +23,12 @@ run:
 	MICRO_SERVER_ADDRESS=$(MICRO_SERVER_ADDRESS) \
 	MONGO_HOST=$(MONGO_HOST) \
 	go run main.go
+
+.PHONY: deploy in kubernetes
+deploy: docker_build
+	kubectl apply -f ./deployment/box-deployment.yaml
+
+.Phony: delete deployment
+delete:
+	kubectl delete svc box-service
+	kubectl delete deployment box-deployment
