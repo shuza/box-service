@@ -1,7 +1,9 @@
 package main
 
 import (
+	k8s "github.com/micro/examples/kubernetes/go/micro"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/registry/consul"
 	"github.com/shuza/box-service/db"
 	pb "github.com/shuza/box-service/proto"
 	"github.com/shuza/box-service/service"
@@ -27,9 +29,11 @@ func main() {
 
 	createDummyBox(repo)
 
-	srv := micro.NewService(
+	registry := consul.NewRegistry()
+	srv := k8s.NewService(
 		micro.Name("porter.box"),
 		micro.Version("latest"),
+		micro.Registry(registry),
 	)
 	srv.Init()
 
