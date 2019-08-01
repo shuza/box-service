@@ -1,7 +1,7 @@
 package db
 
 import (
-	pb "github.com/shuza/box-service/proto"
+	"box-service/model"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -22,20 +22,20 @@ func (repo *MongoRepository) Init(host string) error {
 	return nil
 }
 
-func (repo *MongoRepository) FindAvailable(spec *pb.Specification) (*pb.Box, error) {
+func (repo *MongoRepository) FindAvailable(capacity int32, maxWeight int32) (model.Box, error) {
 	filter := bson.M{
-		"capacity":  bson.M{"$gte": spec.Capacity},
-		"maxweight": bson.M{"$gte": spec.MaxWeight},
+		"capacity":  bson.M{"$gte": capacity},
+		"maxweight": bson.M{"$gte": maxWeight},
 	}
-	var box *pb.Box
+	var box model.Box
 	if err := repo.collection().Find(filter).One(&box); err != nil {
-		return nil, err
+		return box, err
 	}
 
 	return box, nil
 }
 
-func (repo *MongoRepository) Create(box *pb.Box) error {
+func (repo *MongoRepository) Create(box model.Box) error {
 	return repo.collection().Insert(box)
 }
 

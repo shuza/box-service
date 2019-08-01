@@ -1,8 +1,6 @@
 package db
 
-import (
-	pb "github.com/shuza/box-service/proto"
-)
+import "box-service/model"
 
 /**
  *  := 	create date: 01-Jun-2019
@@ -14,7 +12,9 @@ import (
 
 type IRepository interface {
 	Init(host string) error
-	FindAvailable(spec *pb.Specification) (*pb.Box, error)
-	Create(box *pb.Box) error
+	FindAvailable(capacity int32, maxWeight int32) (model.Box, error)
+	Create(box model.Box) error
 	Close()
 }
+
+var Client IRepository
